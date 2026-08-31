@@ -88,9 +88,17 @@ int main() {
                 printf("arg[%d] = '%s'\n", j, args[j]);
             }
 
-            // TODO: create a child process to execute the command
-            // fork() + execvp();
-        }
+      //TODO: create a child process to execute the command
+      //Commands required: fork() + execvp();
+      int p = fork();
+
+      if (p==0) {
+        execvp(args[0], args);
+      }
+      else {
+        wait(NULL);
+      }
+    }
 
         if (pipe_num == 1) {
             // user input contains a single pipe
@@ -123,14 +131,39 @@ int main() {
                 printf("args_2[%d] = '%s'\n", j, args_2[j]);
             }
 
-            // TODO:
-            //(1) create a pipe
-            //(2) create two child processes to execute the two commands
-            //(3) The parent process should close both ends of the pipe and wait
-            //for both children system calls you will need: pipe(), fork(),
-            // dup2(), execvp(), wait()/waitpid()
+     //TODO: 
+     //(1) create a pipe
+     //(2) create two child processes to execute the two commands
+     //(3) The parent process should close both ends of the pipe and wait for both children
+     //system calls you will need: pipe(), fork(), dup2(), execvp(), wait()/waitpid()
+     //(4) child process 1 will redefine the standard output and write to the write end of the pipe
+     //(5) child process 2 will redefine the standard input and read from the read end of the pipe
+    
+    int fd[2];
+    pipe(fd);
+    
+    int p1 = fork();
+    int p2 = fork();
 
-        }  // if
-    }  // while
-    return 0;
-}  // main
+    if (p1 == 0) {
+      close(fd[0]);
+      dup2(fd[1], STDOUT_FILENO);
+      execvp(args_1[0], args_1);
+    } 
+    else if (p2 == 0) {
+      close(fd[1]);
+      dup2(fd[0], STDIN_FILENO);
+      execvp(args_2[0], args_2);
+    } 
+    else {
+      close(fd[0]);
+      close(fd[1]);
+      //ensure both child processes are completed
+      wait(NULL);
+      wait(NULL);
+    }
+    }//if 
+  }//while
+  return 0;
+}//main
+    
