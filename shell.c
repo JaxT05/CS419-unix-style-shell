@@ -149,11 +149,13 @@ int main() {
       close(fd[0]);
       dup2(fd[1], STDOUT_FILENO);
       execvp(args_1[0], args_1);
+      _exit(0);
     } 
     else if (p2 == 0) {
       close(fd[1]);
       dup2(fd[0], STDIN_FILENO);
       execvp(args_2[0], args_2);
+      _exit(0);
     } 
     else {
       close(fd[0]);
